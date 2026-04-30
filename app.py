@@ -1,9 +1,9 @@
 import os
 from dotenv import load_dotenv
 load_dotenv()
+
 import sqlite3
 import webbrowser
-
 
 from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_mail import Mail, Message
@@ -17,7 +17,11 @@ from flask_login import (
 )
 
 app = Flask(__name__)
-app.secret_key = "SAY_MY_NAME!"
+
+# -----------------------------
+# SECRET KEY
+# -----------------------------
+app.secret_key = os.environ.get("SECRET_KEY", "SAY_MY_NAME!")
 
 # -----------------------------
 # MAIL CONFIG
@@ -28,6 +32,10 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get("MAIL_USERNAME")
+
+# IMPORTANT:
+# Prevent mail from hanging forever on Render
+app.config['MAIL_TIMEOUT'] = 10
 
 mail = Mail(app)
 
@@ -64,6 +72,7 @@ def get_db_connection():
 
     return conn
 
+
 # -----------------------------
 # USER CLASS
 # -----------------------------
@@ -98,33 +107,30 @@ def load_user(user_id):
 
     return None
 
+
 # -----------------------------
 # EMAIL FUNCTION
 # -----------------------------
 def send_login_email(user_email, username):
-    try:
-        msg = Message(
-            subject="Login Successful - Welcome Back!",
-            recipients=[user_email]
-        )
+    msg = Message(
+        subject="Login Successful - StudentSync",
+        recipients=[user_email]
+    )
 
-        msg.body = f"""
+    msg.body = f"""
 Hello {username},
 
-You have successfully logged into your account.
+You have successfully logged into your StudentSync account.
 
-Thanks for visiting our website.
+Thanks for visiting StudentSync.
 
 If this login was not made by you, please secure your account immediately.
 
 Regards,
-Your Flask App Team
-        """
+StudentSync Team
+    """
 
-        mail.send(msg)
-
-    except Exception as e:
-        print("Mail Error:", e)
+    mail.send(msg)
 
 
 # -----------------------------
@@ -151,12 +157,14 @@ def register():
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        # Check if email already exists
         cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
         if cursor.fetchone():
             conn.close()
             flash("User already exists!", "error")
             return redirect(url_for('register'))
 
+        # Insert new user
         cursor.execute(
             "INSERT INTO users (username, email, password, profile_pic) VALUES (?, ?, ?, ?)",
             (username, email, password, 'default.png')
@@ -199,11 +207,16 @@ def login():
                 profile_pic=user["profile_pic"]
             )
 
+            # STEP 1: LOGIN FIRST
             login_user(user_obj)
 
-            # Send Login Mail
-            send_login_email(user["email"], user["username"])
+            # STEP 2: TRY EMAIL (DO NOT BREAK LOGIN IF MAIL FAILS)
+            try:
+                send_login_email(user["email"], user["username"])
+            except Exception as e:
+                print("Mail failed:", e)
 
+            # STEP 3: SUCCESS
             flash("Login successful!", "success")
 
             return redirect(url_for('dashboard'))
@@ -299,7 +312,9 @@ def student(name, course):
 # -----------------------------
 # START SERVER
 # -----------------------------
-
 if __name__ == '__main__':
-    webbrowser.open("http://127.0.0.1:5000")
+    # ONLY open browser locally, not on Render
+    if os.environ.get("RENDER") is None:
+        webbrowser.open("http://127.0.0.1:5000")
+
     app.run(debug=False)
