@@ -34,9 +34,10 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get("MAIL_USERNAME")
+app.config['MAIL_USE_SSL'] = False
 
 # Faster fail on Render
-app.config['MAIL_TIMEOUT'] = 5
+app.config['MAIL_TIMEOUT'] = 15
 
 mail = Mail(app)
 
@@ -117,6 +118,7 @@ def send_login_email(user_email, username):
         with app.app_context():
             msg = Message(
                 subject="Login Successful - StudentSync",
+                sender=app.config['MAIL_USERNAME'],
                 recipients=[user_email]
             )
 
@@ -136,6 +138,8 @@ StudentSync Team
             mail.send(msg)
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print("Mail Error:", e)
 
 
@@ -221,7 +225,7 @@ def login():
             threading.Thread(
                 target=send_login_email,
                 args=(user["email"], user["username"]),
-                daemon=True
+                daemon=False
             ).start()
 
             flash("Login successful!", "success")
