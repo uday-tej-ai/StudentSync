@@ -1,4 +1,5 @@
 import os
+import threading
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -16,11 +17,12 @@ from flask_login import (
     current_user
 )
 
+# -----------------------------
+# FLASK APP SETUP
+# -----------------------------
 app = Flask(__name__)
 
-# -----------------------------
-# SECRET KEY
-# -----------------------------
+# Secret Key
 app.secret_key = os.environ.get("SECRET_KEY", "SAY_MY_NAME!")
 
 # -----------------------------
@@ -33,9 +35,8 @@ app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get("MAIL_USERNAME")
 
-# IMPORTANT:
-# Prevent mail from hanging forever on Render
-app.config['MAIL_TIMEOUT'] = 10
+# Faster fail on Render
+app.config['MAIL_TIMEOUT'] = 5
 
 mail = Mail(app)
 
@@ -112,29 +113,34 @@ def load_user(user_id):
 # EMAIL FUNCTION
 # -----------------------------
 def send_login_email(user_email, username):
-    msg = Message(
-        subject="Login Successful - StudentSync",
-        recipients=[user_email]
-    )
+    try:
+        with app.app_context():
+            msg = Message(
+                subject="Login Successful - StudentSync",
+                recipients=[user_email]
+            )
 
-    msg.body = f"""
+            msg.body = f"""
 Hello {username},
 
 You have successfully logged into your StudentSync account.
 
-Thanks for visiting StudentSync.
+Thank you for visiting StudentSync.
 
 If this login was not made by you, please secure your account immediately.
 
 Regards,
 StudentSync Team
-    """
+            """
 
-    mail.send(msg)
+            mail.send(msg)
+
+    except Exception as e:
+        print("Mail Error:", e)
 
 
 # -----------------------------
-# ROUTES
+# HOME / WELCOME
 # -----------------------------
 @app.route('/')
 def welcome():
@@ -157,7 +163,7 @@ def register():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Check if email already exists
+        # Check existing email
         cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
         if cursor.fetchone():
             conn.close()
@@ -200,6 +206,7 @@ def login():
         conn.close()
 
         if user:
+            # Create login object
             user_obj = User(
                 id=user["id"],
                 username=user["username"],
@@ -207,16 +214,16 @@ def login():
                 profile_pic=user["profile_pic"]
             )
 
-            # STEP 1: LOGIN FIRST
+            # Login immediately
             login_user(user_obj)
 
-            # STEP 2: TRY EMAIL (DO NOT BREAK LOGIN IF MAIL FAILS)
-            try:
-                send_login_email(user["email"], user["username"])
-            except Exception as e:
-                print("Mail failed:", e)
+            # Send email in background thread
+            threading.Thread(
+                target=send_login_email,
+                args=(user["email"], user["username"]),
+                daemon=True
+            ).start()
 
-            # STEP 3: SUCCESS
             flash("Login successful!", "success")
 
             return redirect(url_for('dashboard'))
@@ -297,7 +304,7 @@ def logout():
 
 
 # -----------------------------
-# EXTRA ROUTES
+# EXTRA PRACTICE ROUTES
 # -----------------------------
 @app.route('/user/<name>')
 def user(name):
@@ -310,10 +317,10 @@ def student(name, course):
 
 
 # -----------------------------
-# START SERVER
+# LOCAL SERVER ONLY
 # -----------------------------
 if __name__ == '__main__':
-    # ONLY open browser locally, not on Render
+    # Only open browser on local machine, never on Render
     if os.environ.get("RENDER") is None:
         webbrowser.open("http://127.0.0.1:5000")
 
