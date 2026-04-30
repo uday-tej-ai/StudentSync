@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<div class="register-card"> 
+    <h2>Login</h2>
+    <form action="{{ url_for('login') }}" method="POST">
+        <div class="input-group">
+            <label>Username</label>
+            <input type="text" name="username" required>
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" name="password" required>
+        </div>
+        <button type="submit" class="btn-register">Login</button>
+    </form>
+    <p style="text-align: center; margin-top: 15px;">
+        New student? <a href="{{ url_for('register') }}">Register here</a>
+    </p>
+</div>
+{% endblock %}

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="dashboard-wrapper">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Student Portal</h2>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="sidebar-profile">
+                <img src="{{ url_for('static', filename='profile_pics/' + (profile_pic if profile_pic else 'default.png')) }}"
+                     class="user-avatar"
+                     alt="Profile Picture">
+
+                <h3>{{ student }}</h3>
+                <p>Student Account</p>
+            </div>
+
+            <!-- Navigation -->
+            <ul class="nav-links">
+                <li>
+                    <a href="#" class="active">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#">
+                        <i class="fas fa-book-open"></i>
+                        <span>Courses</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Grades</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ url_for('edit_profile') }}">
+                        <i class="fas fa-user-edit"></i>
+                        <span>Edit Profile</span>
+                    </a>
+                </li>
+
+                <li class="logout-item">
+                    <a href="{{ url_for('logout') }}" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Top Header -->
+            <header class="top-header">
+                <div>
+                    <h1>Welcome Back, <span>{{ student }}</span></h1>
+                    <p>Your academic overview at a glance</p>
+                </div>
+
+                <div class="header-right">
+                    <div class="date-display" id="current-date"></div>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <section class="stats-grid">
+
+                <div class="stat-card">
+                    <div class="icon-box blue">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Attendance</h4>
+                        <p>92%</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="icon-box purple">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Assignments</h4>
+                        <p>4 Pending</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="icon-box green">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>GPA</h4>
+                        <p>9.8</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="icon-box orange">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Notifications</h4>
+                        <p>3 New</p>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Main Body -->
+            <section class="content-grid">
+
+                <!-- Announcements -->
+                <div class="content-card">
+                    <h3>Recent Announcements</h3>
+
+                    <div class="announcement">
+                        <p><strong>Exam Schedule:</strong> Mid-term schedule has been released for all departments.</p>
+                    </div>
+
+                    <div class="announcement">
+                        <p><strong>Assignment Alert:</strong> AI Lab Assignment submission deadline is Friday.</p>
+                    </div>
+
+                    <div class="announcement">
+                        <p><strong>Workshop:</strong> Free ML Workshop this Saturday at 10 AM.</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="content-card">
+                    <h3>Quick Actions</h3>
+
+                    <div class="quick-actions">
+                        <a href="#" class="action-btn">
+                            <i class="fas fa-book"></i>
+                            View Courses
+                        </a>
+
+                        <a href="#" class="action-btn">
+                            <i class="fas fa-file-alt"></i>
+                            Assignments
+                        </a>
+
+                        <a href="{{ url_for('edit_profile') }}" class="action-btn">
+                            <i class="fas fa-user-cog"></i>
+                            Update Profile
+                        </a>
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- Date Script -->
+    <script>
+        const today = new Date();
+        document.getElementById("current-date").innerText =
+            today.toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            });
+    </script>
+
+</body>
+</html>

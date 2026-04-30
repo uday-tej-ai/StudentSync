@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student login</title>
+    <!-- 1. Add the head block here so your CSS shows up -->
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+<div class="container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        {% endblock %}
+
+    </div>
+
+<style>
+    .user-avatar {
+        width: 60px;           /* Set a fixed width */
+        height: 60px;          /* Set a fixed height (must match width for a circle) */
+        border-radius: 50%;    /* Makes it a perfect circle */
+        object-fit: cover;     /* CRITICAL: crops the image so it doesn't look squashed */
+        border: 2px solid #007bff;
+}
+.flash {
+    padding: 12px;
+    margin: 10px auto;      /* "auto" centers it horizontally */
+    border-radius: 6px;
+    text-align: center;
+    font-weight: bold;
+    width: 90%;             /* Give it some width */
+    max-width: 400px;       /* Match the width of your login card */
+    display: block;         /* Ensure it takes its own line */
+    transition: opacity 0.5s ease;
+}
+
+/* Red error style */
+.error {
+    background-color: #ff0000;
+    color: white;
+    border: 1px solid #cc0000;
+}
+</style>
+
+<script>
+  setTimeout(() => {
+    let flashes = document.querySelectorAll('.flash');
+    flashes.forEach(flash => {
+      flash.style.transition = "opacity 0.5s ease";
+      flash.style.opacity = "0";
+      setTimeout(() => flash.remove(), 500);
+    });
+  }, 3000);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome | Student Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="register-card" style="text-align: center;">
+        <i class="fas fa-university" style="font-size: 3rem; color: #2563eb; margin-bottom: 1rem;"></i>
+        <h1>Student Portal</h1>
+        <p style="color: #666; margin-bottom: 2rem;">Welcome! Please choose an option to continue.</p>
+
+        <div class="welcome-buttons">
+            <a href="{{ url_for('register') }}" class="btn-register" style="text-decoration: none; display: block; margin-bottom: 1rem;">
+                Create New Account
+            </a>
+
+            <p style="font-size: 14px; color: #888;">Already have an account?</p>
+
+            <a href="{{ url_for('login') }}" class="btn-register" style="text-decoration: none; display: block; background-color: #28a745;">
+                Login Now
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

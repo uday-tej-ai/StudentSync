@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Registration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="register-card">
+        <h2>Register</h2>
+
+        <form action="{{ url_for('register') }}" method="POST">
+            <div class="input-group">
+                <label>Name</label>
+                <input type="text" name="username" placeholder="Enter your name" required>
+            </div>
+
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="name@college.edu" required>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-register">Create Account</button>
+        </form>
+        <p style="text-align: center; margin-top: 15px;">
+            already have an account ? <a href="{{ url_for('login') }}">login here</a>
+        </p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+/* Modern Glassmorphism + Responsive Registration UI */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #0f172a, #1e3a8a, #9333ea);
+    background-size: 300% 300%;
+    animation: gradientMove 12s ease infinite;
+    padding: 20px;
+}
+
+/* Animated Background */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Main Card */
+.register-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 2.5rem;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    color: white;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.register-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+}
+
+/* Heading */
+h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+}
+
+/* Input Group */
+.input-group {
+    margin-bottom: 1.25rem;
+}
+
+/* Labels */
+label {
+    display: block;
+    margin-bottom: 0.55rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #e5e7eb;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.08);
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+/* Placeholder */
+input::placeholder {
+    color: rgba(255,255,255,0.6);
+}
+
+/* Focus Effect */
+input:focus {
+    outline: none;
+    border-color: #60a5fa;
+    background: rgba(255,255,255,0.14);
+    box-shadow: 0 0 0 4px rgba(96,165,250,0.2);
+}
+
+/* Button */
+.btn-register {
+    width: 100%;
+    padding: 0.95rem;
+    margin-top: 1rem;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Button Hover */
+.btn-register:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(59,130,246,0.35);
+    background: linear-gradient(135deg, #1d4ed8, #6d28d9);
+}
+
+/* Button Active */
+.btn-register:active {
+    transform: scale(0.98);
+}
+
+/* Optional footer text */
+.form-footer {
+    margin-top: 1.25rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.75);
+}
+
+.form-footer a {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+    .register-card {
+        padding: 1.8rem;
+        border-radius: 18px;
+    }
+
+    h2 {
+        font-size: 1.6rem;
+    }
+
+    input {
+        padding: 0.8rem;
+    }
+
+    .btn-register {
+        padding: 0.85rem;
+    }
+}
+
+/* Tablet */
+@media (min-width: 481px) and (max-width: 768px) {
+    .register-card {
+        max-width: 500px;
+    }
+}
+
+/* Dashboard Main Layout */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(14px);
+    padding: 2rem 1rem;
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Sidebar Links */
+.sidebar a {
+    display: block;
+    padding: 12px;
+    margin-bottom: 10px;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 2rem;
+}
+
+/* Top Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+/* Cards */
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: rgba(255,255,255,0.08);
+    padding: 1.5rem;
+    border-radius: 18px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile | Student Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .upload-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 350px;
+        }
+        .upload-container h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .user-name {
+            color: #007bff;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .file-input-group {
+            margin-bottom: 25px;
+        }
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .btn-save {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            width: 100%;
+        }
+        .btn-save:hover {
+            background-color: #0056b3;
+        }
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="upload-container">
+        <i class="fas fa-user-circle" style="font-size: 50px; color: #007bff; margin-bottom: 15px;"></i>
+        <h2>Change Profile Picture</h2>
+        <p class="user-name">Editing for: {{ student }}</p>
+
+        <form action="/upload_profile_pic" method="POST" enctype="multipart/form-data">
+            <div class="file-input-group">
+                <input type="file" name="profile_image" accept="image/*" required>
+            </div>
+            <button type="submit" class="btn-save">Save to Database</button>
+        </form>
+
+        <a href="{{ url_for('dashboard') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+</body>
+</html>
