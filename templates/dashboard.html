@@ -1,197 +1,174 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base.html" %}
+
+{% block head %}
     <title>Student Dashboard</title>
-
-    <!-- Dashboard CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+{% endblock %}
 
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-</head>
-<body>
+{% block content %}
 
-    <div class="dashboard-wrapper">
+<div class="dashboard-wrapper">
 
-        <!-- Sidebar -->
-        <aside class="sidebar">
+    <!-- SIDEBAR (Added id for toggling) -->
+    <aside class="sidebar" id="sidebar">
+        <div>
             <div class="sidebar-header">
                 <h2>Student Portal</h2>
             </div>
 
-            <!-- Profile Section -->
-            <div class="sidebar-profile">
-                <img src="{{ url_for('static', filename='profile_pics/' + (profile_pic if profile_pic else 'default.png')) }}"
-                     class="user-avatar"
-                     alt="Profile Picture">
+            <!-- (Profile info removed from here as per discussion to move to header) -->
 
-                <h3>{{ student }}</h3>
-                <p>Student Account</p>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('dashboard') }}" class="active"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+                <li><a href="#"><i class="fas fa-book-open"></i> <span>Courses</span></a></li>
+                <li><a href="#"><i class="fas fa-chart-line"></i> <span>Grades</span></a></li>
+                <li><a href="#"><i class="fas fa-calendar"></i> <span>Schedule</span></a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <!-- GLOBAL HEADER (Added Toggle & Profile Dropdown) -->
+        <header class="global-header">
+            <div class="header-left">
+                <!-- NEW: Sidebar Toggle Button -->
+                <button class="icon-btn" id="sidebar-toggle" style="margin-right: 15px;">
+                    <i class="fas fa-bars-staggered"></i>
+                </button>
+                <div>
+                    <h2>Dashboard Overview</h2>
+                    <p>Stay updated with your academic journey</p>
+                </div>
             </div>
 
-            <!-- Navigation -->
-            <ul class="nav-links">
-                <li>
-                    <a href="#" class="active">
-                        <i class="fas fa-home"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="#">
-                        <i class="fas fa-book-open"></i>
-                        <span>Courses</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="#">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Grades</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="{{ url_for('edit_profile') }}">
-                        <i class="fas fa-user-edit"></i>
-                        <span>Edit Profile</span>
-                    </a>
-                </li>
-
-                <li class="logout-item">
-                    <a href="{{ url_for('logout') }}" class="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
-                </li>
-            </ul>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-
-            <!-- Top Header -->
-            <header class="top-header">
-                <div>
-                    <h1>Welcome Back, <span>{{ student }}</span></h1>
-                    <p>Your academic overview at a glance</p>
+            <div class="header-right-tools">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
                 </div>
 
-                <div class="header-right">
-                    <div class="date-display" id="current-date"></div>
-                </div>
-            </header>
+                <!-- NEW: Profile Popup Trigger -->
+                <div class="header-profile-zone" id="profile-trigger">
+                    <span class="user-name-text">{{ student }}</span>
+                    <img src="{{ url_for('static', filename='profile_pics/' + (profile_pic if profile_pic else 'default.png')) }}" class="mini-avatar">
 
-            <!-- Stats Cards -->
-            <section class="stats-grid">
-
-                <div class="stat-card">
-                    <div class="icon-box blue">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h4>Attendance</h4>
-                        <p>92%</p>
+                    <!-- THE POPUP MENU -->
+                    <div class="profile-dropdown" id="profile-menu">
+                        <a href="{{ url_for('edit_profile') }}"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                        <a href="#"><i class="fas fa-key"></i> Change Password</a>
+                        <hr>
+                        <a href="{{ url_for('logout') }}" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </div>
                 </div>
+            </div>
+        </header>
 
-                <div class="stat-card">
-                    <div class="icon-box purple">
-                        <i class="fas fa-tasks"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h4>Assignments</h4>
-                        <p>4 Pending</p>
+        <!-- TOP HEADER -->
+        <section class="top-header">
+            <div>
+                <h1>Welcome Back, <span>{{ student }}</span></h1>
+                <p>Your academic overview at a glance</p>
+            </div>
+            <div class="header-right">
+                <div class="date-display" id="current-date"></div>
+            </div>
+        </section>
+
+        <!-- STATS GRID (Keep as is) -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="icon-box blue"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-info"><h4>Attendance</h4><p>92%</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="icon-box purple"><i class="fas fa-tasks"></i></div>
+                <div class="stat-info"><h4>Assignments</h4><p>4 Pending</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="icon-box green"><i class="fas fa-star"></i></div>
+                <div class="stat-info"><h4>GPA</h4><p>9.8</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="icon-box orange"><i class="fas fa-bell"></i></div>
+                <div class="stat-info"><h4>Notifications</h4><p>3 New</p></div>
+            </div>
+        </section>
+
+        <!-- CONTENT GRID (Keep as is) -->
+        <section class="content-grid">
+            <div class="content-card">
+                <h3>Recent Announcements</h3>
+                <div class="announcement"><p><strong>Exam Schedule:</strong> Mid-term released.</p></div>
+                <div class="announcement"><p><strong>Assignment Alert:</strong> AI Lab Friday.</p></div>
+            </div>
+
+            <div class="content-card">
+                <h3>Quick Actions</h3>
+                <div class="quick-actions">
+                    <a href="#" class="action-btn"><i class="fas fa-book"></i> <span>View Courses</span></a>
+                    <a href="{{ url_for('edit_profile') }}" class="action-btn"><i class="fas fa-user-cog"></i> <span>Update Profile</span></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROFESSIONAL FOOTER (Upgraded) -->
+        <footer class="footer-professional">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>Student Portal</h3>
+                    <p>Your ultimate academic companion for growth and success.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
                     </div>
                 </div>
-
-                <div class="stat-card">
-                    <div class="icon-box green">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h4>GPA</h4>
-                        <p>9.8</p>
-                    </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <a href="#">About Us</a>
+                    <a href="#">Contact</a>
+                    <a href="#">Careers</a>
                 </div>
-
-                <div class="stat-card">
-                    <div class="icon-box orange">
-                        <i class="fas fa-bell"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h4>Notifications</h4>
-                        <p>3 New</p>
-                    </div>
+                <div class="footer-col">
+                    <h4>Policies</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
                 </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Student Portal | Built with ❤️ by **lipstick_spoiler**</p>
+            </div>
+        </footer>
 
-            </section>
+    </main>
+</div>
 
-            <!-- Main Body -->
-            <section class="content-grid">
+<script>
+    // Date Display
+    const today = new Date();
+    document.getElementById("current-date").innerText = today.toLocaleDateString("en-US", {
+        weekday: "long", year: "numeric", month: "long", day: "numeric"
+    });
 
-                <!-- Announcements -->
-                <div class="content-card">
-                    <h3>Recent Announcements</h3>
+    // Sidebar Toggle Logic
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('closed');
+    });
 
-                    <div class="announcement">
-                        <p><strong>Exam Schedule:</strong> Mid-term schedule has been released for all departments.</p>
-                    </div>
+    // Profile Dropdown Logic
+    const trigger = document.getElementById('profile-trigger');
+    const menu = document.getElementById('profile-menu');
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.toggle('show');
+    });
+    window.addEventListener('click', () => menu.classList.remove('show'));
+</script>
 
-                    <div class="announcement">
-                        <p><strong>Assignment Alert:</strong> AI Lab Assignment submission deadline is Friday.</p>
-                    </div>
-
-                    <div class="announcement">
-                        <p><strong>Workshop:</strong> Free ML Workshop this Saturday at 10 AM.</p>
-                    </div>
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="content-card">
-                    <h3>Quick Actions</h3>
-
-                    <div class="quick-actions">
-                        <a href="#" class="action-btn">
-                            <i class="fas fa-book"></i>
-                            View Courses
-                        </a>
-
-                        <a href="#" class="action-btn">
-                            <i class="fas fa-file-alt"></i>
-                            Assignments
-                        </a>
-
-                        <a href="{{ url_for('edit_profile') }}" class="action-btn">
-                            <i class="fas fa-user-cog"></i>
-                            Update Profile
-                        </a>
-                    </div>
-                </div>
-
-            </section>
-
-        </main>
-
-    </div>
-
-    <!-- Date Script -->
-    <script>
-        const today = new Date();
-        document.getElementById("current-date").innerText =
-            today.toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-            });
-    </script>
-
-</body>
-</html>
+{% endblock %}

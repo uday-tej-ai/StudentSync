@@ -3,67 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student login</title>
-    <!-- 1. Add the head block here so your CSS shows up -->
+    <title>Student Portal</title>
+
+    <!-- Page Specific Head Content -->
     {% block head %}{% endblock %}
 </head>
 <body>
 
-<div class="container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
+    <!-- GLOBAL FLASH MESSAGE BLOCK -->
+    <!-- This fixes delayed + duplicate flash issues -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="flash {{ category }}">
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
+    <!-- Main Page Content -->
+    {% block content %}{% endblock %}
 
-        {% block content %}
-        {% endblock %}
+    <style>
+        /* =========================
+           GLOBAL RESET
+        ========================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    </div>
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+        }
 
-<style>
-    .user-avatar {
-        width: 60px;           /* Set a fixed width */
-        height: 60px;          /* Set a fixed height (must match width for a circle) */
-        border-radius: 50%;    /* Makes it a perfect circle */
-        object-fit: cover;     /* CRITICAL: crops the image so it doesn't look squashed */
-        border: 2px solid #007bff;
-}
-.flash {
-    padding: 12px;
-    margin: 10px auto;      /* "auto" centers it horizontally */
-    border-radius: 6px;
-    text-align: center;
-    font-weight: bold;
-    width: 90%;             /* Give it some width */
-    max-width: 400px;       /* Match the width of your login card */
-    display: block;         /* Ensure it takes its own line */
-    transition: opacity 0.5s ease;
-}
+        /* =========================
+           USER AVATAR
+        ========================= */
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #6c5ce7;
+        }
 
-/* Red error style */
-.error {
-    background-color: #ff0000;
-    color: white;
-    border: 1px solid #cc0000;
-}
-</style>
+        /* =========================
+           FLASH CONTAINER
+        ========================= */
+        .flash-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 90%;
+            max-width: 450px;
+        }
 
-<script>
-  setTimeout(() => {
-    let flashes = document.querySelectorAll('.flash');
-    flashes.forEach(flash => {
-      flash.style.transition = "opacity 0.5s ease";
-      flash.style.opacity = "0";
-      setTimeout(() => flash.remove(), 500);
-    });
-  }, 3000);
-</script>
+        /* =========================
+           FLASH BASE
+        ========================= */
+        .flash {
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            width: 100%;
+            display: block;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            animation: slideDown 0.4s ease;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        /* =========================
+           SUCCESS FLASH
+        ========================= */
+        .success {
+            background-color: #e6ffed;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        /* =========================
+           ERROR FLASH
+        ========================= */
+        .error {
+            background-color: #fff1f2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+        }
+
+        /* =========================
+           INFO FLASH (Optional)
+        ========================= */
+        .info {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #93c5fd;
+        }
+
+        /* =========================
+           FLASH ANIMATION
+        ========================= */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* =========================
+           MOBILE RESPONSIVE
+        ========================= */
+        @media (max-width: 480px) {
+            .flash {
+                font-size: 0.9rem;
+                padding: 12px;
+            }
+
+            .flash-container {
+                top: 12px;
+                width: 95%;
+            }
+        }
+    </style>
+
+    <script>
+        // =========================
+        // AUTO REMOVE FLASH MESSAGES
+        // =========================
+        setTimeout(() => {
+            const flashes = document.querySelectorAll('.flash');
+
+            flashes.forEach(flash => {
+                flash.style.opacity = "0";
+                flash.style.transform = "translateY(-10px)";
+
+                setTimeout(() => {
+                    flash.remove();
+                }, 500);
+            });
+        }, 2500);
+    </script>
 
 </body>
 </html>

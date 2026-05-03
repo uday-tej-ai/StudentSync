@@ -1,37 +1,160 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Student Registration</title>
+{% extends "base.html" %}
+
+{% block head %}
+    <title>Join Us - Student Portal</title>
+
+    <!-- Main CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
 
-    <div class="register-card">
-        <h2>Register</h2>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Fredoka+One&display=swap" rel="stylesheet">
 
-        <form action="{{ url_for('register') }}" method="POST">
-            <div class="input-group">
-                <label>Name</label>
-                <input type="text" name="username" placeholder="Enter your name" required>
-            </div>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
 
-            <div class="input-group">
-                <label>Email</label>
-                <input type="email" name="email" placeholder="name@college.edu" required>
-            </div>
+{% block content %}
 
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" name="password" placeholder="••••••••" required>
-            </div>
+<div class="container">
 
-            <button type="submit" class="btn-register">Create Account</button>
-        </form>
-        <p style="text-align: center; margin-top: 15px;">
-            already have an account ? <a href="{{ url_for('login') }}">login here</a>
+    <!-- Left Side: Cartoon & Info -->
+    <div class="info-side">
+        <div class="cartoon-char" id="character">🚀</div>
+        <div class="quote-box" id="quote">"Your journey starts here!"</div>
+
+        <p class="about-text">
+            Welcome to the <strong>Student Portal</strong>. A specialized platform designed for collaborative learning and project management.
+            Join our community of developers today!
         </p>
     </div>
 
-</body>
-</html>
+    <!-- Right Side: Registration Form -->
+    <div class="form-side">
+        <div class="auth-card">
+            <h2>Create Account</h2>
+
+            <!-- IMPORTANT:
+                 Flash messages removed from here because base.html handles them globally
+                 Prevents duplicate + delayed messages
+            -->
+
+            <form action="{{ url_for('register') }}" method="POST">
+
+                <!-- Full Name -->
+                <div class="input-group">
+                    <label for="username">Full Name</label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Uday Tej"
+                        autocomplete="name"
+                        required
+                    >
+                </div>
+
+                <!-- Email -->
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="name@college.edu"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <!-- Password -->
+                <div class="input-group">
+                    <label for="passwordField">Password</label>
+
+                    <div class="password-wrapper">
+                        <input
+                            type="password"
+                            name="password"
+                            id="passwordField"
+                            placeholder="••••••••"
+                            minlength="8"
+                            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                        <!-- Eye Icon -->
+                        <i class="fa-regular fa-eye toggle-eye" id="eyeIcon" onclick="togglePassword()"></i>
+                    </div>
+
+                    <!-- Password Requirements -->
+                    <div class="requirements">
+                        Must be 8+ characters with an uppercase letter, a number, and a symbol.
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-auth">
+                    Sign Up
+                </button>
+
+            </form>
+
+            <!-- Login Link -->
+            <p style="text-align: center; margin-top: 20px; font-size: 0.9rem;">
+                Already have an account?
+                <a href="{{ url_for('login') }}" style="color: #6c5ce7; font-weight:600;">
+                    Login here
+                </a>
+            </p>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // =========================
+    // Dynamic Quotes + Character
+    // =========================
+    const quotes = [
+        "Code like a pro!",
+        "Secure your future.",
+        "Build. Ship. Repeat.",
+        "Learning is a superpower!",
+        "Your dream starts today!"
+    ];
+
+    const chars = ["🚀", "🤖", "⚡", "🧠", "🌈"];
+
+    setInterval(() => {
+        const quoteElem = document.getElementById("quote");
+        const charElem = document.getElementById("character");
+
+        quoteElem.innerText =
+            `"${quotes[Math.floor(Math.random() * quotes.length)]}"`;
+
+        charElem.innerText =
+            chars[Math.floor(Math.random() * chars.length)];
+    }, 3000);
+
+
+    // =========================
+    // Password Toggle
+    // =========================
+    function togglePassword() {
+        const passwordField = document.getElementById("passwordField");
+        const eyeIcon = document.getElementById("eyeIcon");
+
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            eyeIcon.classList.remove("fa-eye");
+            eyeIcon.classList.add("fa-eye-slash");
+        } else {
+            passwordField.type = "password";
+            eyeIcon.classList.remove("fa-eye-slash");
+            eyeIcon.classList.add("fa-eye");
+        }
+    }
+</script>
+
+{% endblock %}

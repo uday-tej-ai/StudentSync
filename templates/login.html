@@ -1,22 +1,145 @@
 {% extends "base.html" %}
 
-{% block content %}
+{% block head %}
+    <title>Login - Student Portal</title>
+
+    <!-- Main CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<div class="register-card"> 
-    <h2>Login</h2>
-    <form action="{{ url_for('login') }}" method="POST">
-        <div class="input-group">
-            <label>Username</label>
-            <input type="text" name="username" required>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Fredoka+One&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <!-- Left Side: Animated Cartoon Area -->
+    <div class="info-side">
+        <div class="cartoon-char" id="character">🤖</div>
+        <div class="quote-box" id="quote">"Welcome back, Explorer!"</div>
+
+        <p class="about-text">
+            Log in to access your dashboard, track your progress, and continue your learning journey.
+            Our platform helps you stay organized and connected.
+        </p>
+    </div>
+
+    <!-- Right Side: Login Form -->
+    <div class="form-side">
+        <div class="auth-card">
+            <h2>Login</h2>
+
+            <!-- IMPORTANT:
+                 Flash messages removed here because base.html handles them globally
+                 This prevents duplicate + delayed flash issue
+            -->
+
+            <form action="{{ url_for('login') }}" method="POST">
+
+                <!-- Username -->
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Enter your username"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <!-- Password -->
+                <div class="input-group">
+                    <label for="loginPassword">Password</label>
+
+                    <div class="password-wrapper">
+                        <input
+                            type="password"
+                            name="password"
+                            id="loginPassword"
+                            placeholder="••••••••"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <!-- Eye Icon -->
+                        <i class="fa-regular fa-eye toggle-eye"
+                           id="loginEyeIcon"
+                           onclick="toggleLoginPassword()">
+                        </i>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-auth">
+                    Login
+                </button>
+
+            </form>
+
+            <!-- Register Link -->
+            <p style="text-align: center; margin-top: 25px; font-size: 0.9rem;">
+                New student?
+                <a href="{{ url_for('register') }}"
+                   style="color: #6c5ce7; font-weight: 600;">
+                    Register here
+                </a>
+            </p>
+
         </div>
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" name="password" required>
-        </div>
-        <button type="submit" class="btn-register">Login</button>
-    </form>
-    <p style="text-align: center; margin-top: 15px;">
-        New student? <a href="{{ url_for('register') }}">Register here</a>
-    </p>
+    </div>
+
 </div>
+
+<script>
+    // =========================
+    // Dynamic Character & Quote
+    // =========================
+    const loginQuotes = [
+        "Ready for more?",
+        "Your code is waiting.",
+        "Consistency is key!",
+        "Let's build something.",
+        "Keep learning, keep growing!"
+    ];
+
+    const loginChars = ["🤖", "💻", "✨", "🔥", "🚀"];
+
+    setInterval(() => {
+        const quoteElem = document.getElementById("quote");
+        const charElem = document.getElementById("character");
+
+        quoteElem.innerText =
+            `"${loginQuotes[Math.floor(Math.random() * loginQuotes.length)]}"`;
+
+        charElem.innerText =
+            loginChars[Math.floor(Math.random() * loginChars.length)];
+
+    }, 4000);
+
+
+    // =========================
+    // Password Visibility Toggle
+    // =========================
+    function toggleLoginPassword() {
+        const passwordField = document.getElementById("loginPassword");
+        const eyeIcon = document.getElementById("loginEyeIcon");
+
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            eyeIcon.classList.remove("fa-eye");
+            eyeIcon.classList.add("fa-eye-slash");
+        } else {
+            passwordField.type = "password";
+            eyeIcon.classList.remove("fa-eye-slash");
+            eyeIcon.classList.add("fa-eye");
+        }
+    }
+</script>
+
 {% endblock %}

@@ -4,26 +4,111 @@
     <meta charset="UTF-8">
     <title>Welcome | Student Portal</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: white;
+            margin: 0;
+            overflow: hidden; /* Prevents scrollbars during animation */
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px; /* Essential for 3D anti-gravity effect */
+        }
+
+        /* Floating Background Shapes */
+        .bg-shape {
+            position: absolute;
+            font-size: 2rem;
+            user-select: none;
+            z-index: 1;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Centered Welcome Card */
+        .welcome-container {
+            position: relative;
+            z-index: 10;
+            background: white;
+            padding: 50px;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #f0f0f0;
+            transform-style: preserve-3d;
+        }
+
+        h1 { font-family: 'Fredoka One', cursive; color: #2d3436; font-size: 2.5rem; margin: 10px 0; }
+        p { color: #636e72; margin-bottom: 30px; }
+
+        .btn-welcome {
+            display: block;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary { background: #6c5ce7; color: white; }
+        .btn-secondary { background: #00b894; color: white; }
+
+        .btn-welcome:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 <body>
 
-    <div class="register-card" style="text-align: center;">
-        <i class="fas fa-university" style="font-size: 3rem; color: #2563eb; margin-bottom: 1rem;"></i>
+    <!-- Anti-Gravity Background Elements -->
+    <div class="bg-shape" style="top: 15%; left: 10%;" data-speed="5">🚀</div>
+    <div class="bg-shape" style="top: 20%; left: 80%;" data-speed="-3">🤖</div>
+    <div class="bg-shape" style="top: 70%; left: 15%;" data-speed="4">✨</div>
+    <div class="bg-shape" style="top: 80%; left: 75%;" data-speed="-6">💻</div>
+    <div class="bg-shape" style="top: 40%; left: 85%;" data-speed="2">🔥</div>
+    <div class="bg-shape" style="top: 10%; left: 50%;" data-speed="-4">🌈</div>
+
+    <div class="welcome-container" id="welcomeCard">
+        <div style="font-size: 4rem; margin-bottom: 10px;">🎓</div>
         <h1>Student Portal</h1>
-        <p style="color: #666; margin-bottom: 2rem;">Welcome! Please choose an option to continue.</p>
+        <p>Your gateway to collaborative learning.</p>
 
         <div class="welcome-buttons">
-            <a href="{{ url_for('register') }}" class="btn-register" style="text-decoration: none; display: block; margin-bottom: 1rem;">
+            <a href="{{ url_for('register') }}" class="btn-welcome btn-primary">
                 Create New Account
             </a>
 
-            <p style="font-size: 14px; color: #888;">Already have an account?</p>
+            <span style="font-size: 0.8rem; color: #b2bec3; display: block; margin: 15px 0;">OR</span>
 
-            <a href="{{ url_for('login') }}" class="btn-register" style="text-decoration: none; display: block; background-color: #28a745;">
-                Login Now
+            <a href="{{ url_for('login') }}" class="btn-welcome btn-secondary">
+                Login
             </a>
         </div>
     </div>
 
+    <script>
+        // Anti-Gravity Movement Script
+        document.addEventListener("mousemove", function(e) {
+            const moveX = (e.clientX - window.innerWidth / 2) / 25;
+            const moveY = (e.clientY - window.innerHeight / 2) / 25;
+
+            // Move the Background Shapes
+            document.querySelectorAll('.bg-shape').forEach(shape => {
+                const speed = shape.getAttribute('data-speed');
+                const x = (window.innerWidth - e.pageX * speed) / 100;
+                const y = (window.innerHeight - e.pageY * speed) / 100;
+                shape.style.transform = `translateX(${x}px) translateY(${y}px)`;
+            });
+
+            // Subtle Tilt for the Main Card
+            const card = document.getElementById('welcomeCard');
+            card.style.transform = `rotateY(${moveX}deg) rotateX(${-moveY}deg)`;
+        });
+    </script>
 </body>
 </html>

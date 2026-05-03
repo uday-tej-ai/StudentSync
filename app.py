@@ -1,10 +1,14 @@
 import os
 import threading
+import webbrowser
+import random
+from datetime import datetime
+
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+
 from dotenv import load_dotenv
 load_dotenv()
-
-import sqlite3
-import webbrowser
 
 from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_mail import Mail, Message
@@ -21,9 +25,22 @@ from flask_login import (
 # FLASK APP SETUP
 # -----------------------------
 app = Flask(__name__)
-
-# Secret Key
 app.secret_key = os.environ.get("SECRET_KEY", "SAY_MY_NAME!")
+
+# -----------------------------
+# MONGODB ATLAS SETUP
+# -----------------------------
+MONGO_URI = os.environ.get("MONGO_URI")
+
+mongo_client = MongoClient(MONGO_URI)
+
+db = mongo_client["student_portal"]
+users_collection = db["users"]
+
+try:
+    print("Connected Databases:", mongo_client.list_database_names())
+except Exception as e:
+    print("MongoDB Connection Error:", e)
 
 # -----------------------------
 # MAIL CONFIG
@@ -31,48 +48,30 @@ app.secret_key = os.environ.get("SECRET_KEY", "SAY_MY_NAME!")
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get("MAIL_USERNAME")
-app.config['MAIL_USE_SSL'] = False
-
-# Faster fail on Render
 app.config['MAIL_TIMEOUT'] = 15
 
 mail = Mail(app)
 
 # -----------------------------
-# FLASK LOGIN SETUP
+# LOGIN MANAGER
 # -----------------------------
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
+login_manager.login_message = "Please login first."
+login_manager.login_message_category = "error"
 
 # -----------------------------
-# FOLDER SETUP
+# UPLOAD FOLDER
 # -----------------------------
-UPLOAD_FOLDER = 'static/profile_pics'
+UPLOAD_FOLDER = "static/profile_pics"
+
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-
-# -----------------------------
-# DATABASE
-# -----------------------------
-def get_db_connection():
-    conn = sqlite3.connect("database.db", timeout=20)
-    conn.row_factory = sqlite3.Row
-
-    conn.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL,
-            email TEXT NOT NULL,
-            password TEXT NOT NULL,
-            profile_pic TEXT DEFAULT 'default.png'
-        )
-    ''')
-
-    return conn
 
 
 # -----------------------------
@@ -80,7 +79,7 @@ def get_db_connection():
 # -----------------------------
 class User(UserMixin):
     def __init__(self, id, username, email, profile_pic):
-        self.id = id
+        self.id = str(id)
         self.username = username
         self.email = email
         self.profile_pic = profile_pic
@@ -91,43 +90,84 @@ class User(UserMixin):
 # -----------------------------
 @login_manager.user_loader
 def load_user(user_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-    user = cursor.fetchone()
-
-    conn.close()
-
-    if user:
-        return User(
-            id=user["id"],
-            username=user["username"],
-            email=user["email"],
-            profile_pic=user["profile_pic"]
+    try:
+        user = users_collection.find_one(
+            {"_id": ObjectId(user_id)}
         )
+
+        if user:
+            return User(
+                id=user["_id"],
+                username=user["username"],
+                email=user["email"],
+                profile_pic=user.get("profile_pic", "default.png")
+            )
+
+    except Exception as e:
+        print("User Loader Error:", e)
 
     return None
 
 
 # -----------------------------
-# EMAIL FUNCTION
+# DYNAMIC LOGIN EMAIL
 # -----------------------------
 def send_login_email(user_email, username):
     try:
         with app.app_context():
+
+            subjects = [
+                "Login Successful - StudentSync",
+                "Welcome Back to StudentSync!",
+                "Your StudentSync Account Accessed",
+                "New Login Alert - StudentSync",
+                f"Hey {username}, You’re Back!"
+            ]
+
+            greetings = [
+                f"Hello {username},",
+                f"Welcome back {username},",
+                f"Hey {username},",
+                f"Hi {username},",
+                f"Greetings {username},"
+            ]
+
+            messages = [
+                "You have successfully logged into your StudentSync account.",
+                "Your learning dashboard is now active and ready.",
+                "A successful login was detected on your StudentSync profile.",
+                "You’re all set — your StudentSync portal is ready for you.",
+                "Your account was accessed successfully."
+            ]
+
+            motivational_lines = [
+                "Keep learning, keep growing.",
+                "Your future is built one step at a time.",
+                "Stay consistent. Success follows.",
+                "Every login is progress.",
+                "Build. Learn. Achieve."
+            ]
+
+            greeting = random.choice(greetings)
+            main_message = random.choice(messages)
+            motivation = random.choice(motivational_lines)
+            subject = random.choice(subjects)
+
+            login_time = datetime.now().strftime("%d-%m-%Y | %I:%M %p")
+
             msg = Message(
-                subject="Login Successful - StudentSync",
-                sender=app.config['MAIL_USERNAME'],
+                subject=subject,
                 recipients=[user_email]
             )
 
             msg.body = f"""
-Hello {username},
+{greeting}
 
-You have successfully logged into your StudentSync account.
+{main_message}
 
-Thank you for visiting StudentSync.
+Login Time: {login_time}
+
+{motivation}
 
 If this login was not made by you, please secure your account immediately.
 
@@ -138,8 +178,6 @@ StudentSync Team
             mail.send(msg)
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         print("Mail Error:", e)
 
 
@@ -160,31 +198,38 @@ def welcome():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
+        username = request.form.get("username", "").strip()
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "").strip()
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        # Validation
+        if not username or not email or not password:
+            flash("All fields are required!", "error")
+            return redirect(url_for("register"))
 
-        # Check existing email
-        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
-        if cursor.fetchone():
-            conn.close()
-            flash("User already exists!", "error")
-            return redirect(url_for('register'))
+        # Check existing user
+        existing_user = users_collection.find_one({
+            "$or": [
+                {"username": username},
+                {"email": email}
+            ]
+        })
 
-        # Insert new user
-        cursor.execute(
-            "INSERT INTO users (username, email, password, profile_pic) VALUES (?, ?, ?, ?)",
-            (username, email, password, 'default.png')
-        )
+        if existing_user:
+            flash("Username or email already exists!", "error")
+            return redirect(url_for("register"))
 
-        conn.commit()
-        conn.close()
+        # Insert user
+        users_collection.insert_one({
+            "username": username,
+            "email": email,
+            "password": password,
+            "profile_pic": "default.png",
+            "created_at": datetime.utcnow()
+        })
 
         flash("Registration successful! Please login.", "success")
-        return redirect(url_for('login'))
+        return redirect(url_for("login"))
 
     return render_template("register.html")
 
@@ -195,45 +240,41 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        if not username or not password:
+            flash("Please enter both username and password!", "error")
+            return redirect(url_for("login"))
 
-        cursor.execute(
-            "SELECT * FROM users WHERE username = ? AND password = ?",
-            (username, password)
-        )
-
-        user = cursor.fetchone()
-        conn.close()
+        # Find user
+        user = users_collection.find_one({
+            "username": username,
+            "password": password
+        })
 
         if user:
-            # Create login object
             user_obj = User(
-                id=user["id"],
+                id=user["_id"],
                 username=user["username"],
                 email=user["email"],
-                profile_pic=user["profile_pic"]
+                profile_pic=user.get("profile_pic", "default.png")
             )
 
-            # Login immediately
             login_user(user_obj)
 
-            # Send email in background thread
+            # Dynamic mail
             threading.Thread(
                 target=send_login_email,
                 args=(user["email"], user["username"]),
-                daemon=False
+                daemon=True
             ).start()
 
-            flash("Login successful!", "success")
+            flash("Welcome back!", "success")
+            return redirect(url_for("dashboard"))
 
-            return redirect(url_for('dashboard'))
-
-        else:
-            flash("Invalid credentials!", "error")
+        flash("Invalid username or password!", "error")
+        return redirect(url_for("login"))
 
     return render_template("login.html")
 
@@ -244,12 +285,12 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    pic = current_user.profile_pic if current_user.profile_pic else "default.png"
+    profile_pic = current_user.profile_pic or "default.png"
 
     return render_template(
         "dashboard.html",
         student=current_user.username,
-        profile_pic=pic
+        profile_pic=profile_pic
     )
 
 
@@ -261,7 +302,8 @@ def dashboard():
 def edit_profile():
     return render_template(
         "edit_profile.html",
-        student=current_user.username
+        student=current_user.username,
+        profile_pic=current_user.profile_pic
     )
 
 
@@ -271,29 +313,30 @@ def edit_profile():
 @app.route('/upload_profile_pic', methods=['POST'])
 @login_required
 def upload_profile_pic():
-    file = request.files.get('profile_image')
+    file = request.files.get("profile_image")
 
-    if file and file.filename != '':
-        username = current_user.username
-        filename = f"{username}_avatar.png"
+    if not file or file.filename == "":
+        flash("Please select an image first!", "error")
+        return redirect(url_for("dashboard"))
 
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
+    filename = f"{current_user.username}_avatar.png"
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
+    try:
+        file.save(filepath)
 
-        cursor.execute(
-            "UPDATE users SET profile_pic = ? WHERE id = ?",
-            (filename, current_user.id)
+        users_collection.update_one(
+            {"_id": ObjectId(current_user.id)},
+            {"$set": {"profile_pic": filename}}
         )
-
-        conn.commit()
-        conn.close()
 
         flash("Profile picture updated successfully!", "success")
 
-    return redirect(url_for('dashboard'))
+    except Exception as e:
+        print("Upload Error:", e)
+        flash("Profile picture upload failed!", "error")
+
+    return redirect(url_for("dashboard"))
 
 
 # -----------------------------
@@ -304,7 +347,7 @@ def upload_profile_pic():
 def logout():
     logout_user()
     flash("Logged out successfully!", "success")
-    return redirect(url_for('login'))
+    return redirect(url_for("login"))
 
 
 # -----------------------------
@@ -321,10 +364,11 @@ def student(name, course):
 
 
 # -----------------------------
-# LOCAL SERVER ONLY
+# MAIN
 # -----------------------------
-if __name__ == '__main__':
-    # Only open browser on local machine, never on Render
+if __name__ == "__main__":
+
+    # Open browser locally only
     if os.environ.get("RENDER") is None:
         webbrowser.open("http://127.0.0.1:5000")
 
